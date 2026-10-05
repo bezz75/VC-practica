@@ -66,7 +66,10 @@ La combinación de proyecciones y filtros geométricos ayuda a descartar algunas
 
 ## Fuentes consultadas
 
-* OpenCV, funciones de dibujo: https://docs.opencv.org/4.x/dc/da5/tutorial\_py\_drawing\_functions.html
+* OpenCV, funciones de dibujo:
+
+&#x20;  https://docs.opencv.org/4.x/dc/da5/tutorial\_py\_drawing\_functions.html
+
 * Niklas Roy - My Little piece of privacy:
 
 &#x20;  https://www.niklasroy.com/project/88/my-little-piece-of-privacy
