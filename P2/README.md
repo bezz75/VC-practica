@@ -2,18 +2,18 @@
 
 ## Autoría
 
-* Beatriz Chaves Marrero |https://github.com/bezz75
+* Beatriz Chaves Marrero | https://github.com/bezz75
 * Marcos Peña Armario | https://github.com/marcpear
 
 ## Descripción
 
-Este repositorio contiene el cuaderno `VC\_P2.ipynb`, correspondiente a la primera práctica de la asignatura Visión por Computador, además de la imagen "mandril.jpg" la cual se usará en las diversas tareas del cuaderno.
+Este repositorio contiene el cuaderno "VC_P2.ipynb", correspondiente a la segunda práctica de la asignatura Visión por Computador, además de la imagen "mandril.jpg" la cual se usará en las diversas tareas del cuaderno.
 
 El cuaderno incluye:
 
 * La cuenta de píxeles blancos por filas determinando el valor máximo de píxeles blancos y mostrando el número de sus filas y sus respectivas posiciones.
-* Aplicación de umbralizado a una imagen anterior resultante de Sobel y la realización posterior del conteo por filas y columnas calculando el valor máximo de la cuenta por filas y columnas.
-* Propuesta propia de procesamiento la cual trabaja la censura del rostro humano con una difuminación en esa área.
+* Aplicación de umbralizado a una imagen anterior resultante de Sobel y la realización posterior del conteo por filas y columnas calculando el valor máximo de la cuenta por filas y columnas. Además, comparativa con la versión de Canny.
+* Propuesta propia de procesamiento la cual trabaja la censura de la piel con una difuminación en esa área.
 
 ## Ejecución
 
@@ -25,13 +25,13 @@ Instalaciones necesarias:
 pip install opencv-python numpy matplotlib
 ```
 
-Las tareas relacionadas con la cámara necesitan una webcam. Para finalizar las ventanas de OpenCV hay que pulsar `ESC`.
+Las tareas relacionadas con la cámara necesitan una webcam. Para finalizar las ventanas de OpenCV hay que pulsar 'ESC'.
 
 
 
 ## Resultados
 
-**Tarea 1:**Realiza la cuenta de píxeles blancos por filas (en lugar de por columnas). Determina el valor máximo de píxeles blancos para filas, maxfil, mostrando el número de filas y sus respectivas posiciones, con un número de píxeles blancos mayor o igual que 0.90\*maxfil. Resalta con alguna primitiva gráfica en la imagen de Canny las filas que cumplen dicha condición.
+**Tarea 1:** Realiza la cuenta de píxeles blancos por filas (en lugar de por columnas). Determina el valor máximo de píxeles blancos para filas, maxfil, mostrando el número de filas y sus respectivas posiciones, con un número de píxeles blancos mayor o igual que 0.90\*maxfil. Resalta con alguna primitiva gráfica en la imagen de Canny las filas que cumplen dicha condición.
 
 
 
@@ -49,11 +49,15 @@ Al comparar ambos métodos, se concluye que Canny proporciona contornos mucho m�
 
 
 
-**Tarea 3:**Tras ver los vídeos My little piece of privacy, Messa di voce y Virtual air guitar] proponer un demostrador reinterpretando la parte de procesamiento de la imagen, tomando como punto de partida alguna de dichas instalaciones.
+**Tarea 3:** Tras ver los vídeos My little piece of privacy, Messa di voce y Virtual air guitar] proponer un demostrador reinterpretando la parte de procesamiento de la imagen, tomando como punto de partida alguna de dichas instalaciones.
 
 
 
 **Resultado:**
+
+Se desarrolló un demostrador inspirado en My Little Piece of Privacy que utiliza la webcam para censurar en tiempo real las regiones detectadas como piel. Para ello, cada fotograma se convierte al espacio de color HSV y se genera una máscara con los tonos seleccionados. Después, se extraen los contornos y se filtran por área, proporción entre anchura y altura y ocupación de sus filas y columnas. Las regiones que cumplen estas condiciones se difuminan con un filtro gaussiano y se muestran delimitadas en la imagen.
+
+La combinación de proyecciones y filtros geométricos ayuda a descartar algunas regiones del fondo, como formas muy alargadas o poco compactas. Sin embargo, como la detección se basa en el color y la forma, no identifica la piel de manera infalible: otros elementos con características similares también podrían ser censurados.
 
 
 
