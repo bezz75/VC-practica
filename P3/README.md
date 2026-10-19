@@ -23,7 +23,7 @@ Las tareas relacionadas con la cámara necesitan una cámara web. Para finalizar
 
 **Resultado:** En un principio se intentó realizar la clasificación de las monedas basándose únicamente en su diámetro, utilizando una moneda de 50 céntimos como patrón de calibración. Sin embargo, este método generaba bastantes falsos positivos. Para solucionar este problema y evitar confundir monedas de tamaños similares (como la de 1 euro y la de 5 céntimos), se integró un análisis de color como segunda capa de validación.
 
-![Resultado Tarea 1](Resultados/Grabacindepantalla2026-10-19134534-ezgif.com-video-to-gif-converter.gif)
+![Resultado Tarea 1](Resultados/Monedas.gif)
 
 **Tarea 2:** Desarrollo de clasificador de partículas mediante la extracción e identificación de características sin modelos de aprendizaje profundo.
 
