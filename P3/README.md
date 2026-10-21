@@ -50,7 +50,7 @@ La exactitud obtenida fue del **73,58 %** (78 clasificaciones correctas de 106).
 
 Estos resultados muestran que la combinación de características permite distinguir razonablemente las clases, aunque todavía se producen errores, especialmente entre pellets y fragmentos. La siguiente comparativa muestra las anotaciones reales de la imagen de prueba junto a las predicciones del clasificador.
 
-![Comparativa entre anotaciones reales y predicciones](Resultados/tarea2_comparativa.png)
+![Comparativa entre anotaciones reales y predicciones](Resultados/tarea2_2.png)
 
 La segmentación de las partículas se muestra a continuación:
 
@@ -58,6 +58,11 @@ La segmentación de las partículas se muestra a continuación:
 
 ## Fuentes consultadas
 
+ - **Documentación de opencv**
+https://docs.opencv.org/4.13.0/dd/d49/tutorial_py_contour_features.html
+
+- **SMACC: A System for Microplastics Automatic Counting and Classification**:
+https://ieeexplore.ieee.org/document/8976153
 
 
 ## Uso de IA
