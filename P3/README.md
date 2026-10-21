@@ -7,7 +7,7 @@
 
 ## Descripción
 
-Este repositorio contiene el cuaderno "VC_P3.ipynb", correspondiente a la tercera práctica de la asignatura Visión por Computador.
+Este repositorio contiene el cuaderno `VC_P3.ipynb`, correspondiente a la tercera práctica de la asignatura Visión por Computador.
 
 El cuaderno incluye:
 
