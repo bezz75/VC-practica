@@ -1,4 +1,4 @@
-# Práctica 3 de Visión por Computador
+# Práctica 4a y 4b de Visión por Computador
 
 ## Autoría
 
