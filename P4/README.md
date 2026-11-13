@@ -7,68 +7,68 @@
 
 ## Descripción
 
-Este repositorio contiene los cuardernos `VC_P4a.ipynb` y `VC_P4b.ipynb`, los cuales corresponden a la práctica 4a y 4b de la asignatura Visión por Computador.
+Este repositorio contiene los cuardernos `VC_P4a.ipynb` y `VC_P4b.ipynb`, los cuales corresponden a la práctica 4a y 4b de la asignatura Visión por Computador. Se ejecutaron en Google Colab (GPU NVIDIA T4) para disponer de GPU.
 
-Para la realización de la práctica se uso Google Colab a modo de ejecución para proporcionar un entorno que nos permitiera usar una GPU en lugar de nuestras CPU.
+Práctica 4a. Prototipo que procesa el vídeo de test para detectar y seguir personas y vehículos, detectar las matrículas de los vehículos, contar el total de cada clase y volcar a disco un vídeo anotado y un CSV. Combina dos detectores:
 
-Respecto a la práctica 4a combinamos dos detectores:
+YOLO11n preentrenado (COCO) con el seguimiento BoT-SORT de Ultralytics, para personas, bicicletas, coches, motos, autobuses y camiones.
+YOLO11n ajustado para matrículas, entrenado con UC3M-LP (una sola clase, license_plate).
 
-- Un modelo YOLO11n preentrenado para localizar personas y vehículos en el vídeo.
-- Un detector YOLO11n ajustado para localizar matrículas, entrenado con UC3M-LP.
+Práctica 4b. Añade el reconocimiento del texto de las matrículas (OCR). Compara EasyOCR con SmolVLM y los integra en el pipeline, que genera el vídeo y los CSV con el texto leído.
 
-El cuaderno verifica visualmente las anotaciones, entrena y evalúa el detector de matrículas y muestra una demostración de vídeo anotada.
-
-La práctica 4b añade el reconocimiento del texto de las matrículas (OCR). Comparamos EasyOCR con SmolVLM y los integra en un pipeline que genera un vídeo demostrando los resultados y archivos CSV con detecciones por fotograma y un resumen por vehículo.
-
+<<Sección 4b: se revisará en el siguiente paso>>
 
 ## Dataset
 
-Se ha usado un dataset externo [UC3M-LP](https://github.com/ramajoballester/UC3M-LP) que contiene imágenes `.jpg` de las matrículas y sus anotaciones `.json`, este dataset se ha preparado y tratado para su utilización en la práctica de la siguiente manera:
+Se ha usado un dataset externo [UC3M-LP](https://github.com/ramajoballester/UC3M-LP) que contiene fotografías nocturnas de 5184×3888 píxeles con varios coches por imagen (hasta dos matrículas por imagen), con una anotación .json por imagen que incluye el polígono de cada matrícula y su texto. Este dataset se ha preparado y tratado para su utilización en la práctica creando un script que hizo lo siguiente:
 
-Se elaboró un script que basicamente empareja cada imagen con su JSON por nombre de archivo y convierte el polígono de cada matrícula en una caja delimitadora YOLO de la clase `license_plate`. Las coordenadas se normalizan con las dimensiones indicadas en el JSON y las imágenes sin matrículas reciben un archivo de etiqueta vacío.
+- Empareja cada imagen con su JSON por nombre de archivo.
+- Convierte el polígono de cada matrícula en la caja delimitadora YOLO de la clase license_plate, normalizada con el tamaño de imagen indicado en el JSON.
+- Conserva las particiones originales de entrenamiento y prueba y separa aleatoriamente (semilla 42) un 20 % del entrenamiento como validación.
+- Genera el YAML de configuración y ground_truth.csv, con el texto de referencia y las coordenadas de cada matrícula para la práctica 4b. Los asteriscos del texto son caracteres ocultos o ilegibles y deben tratarse como comodines al evaluar el OCR.
 
-Se conservan las particiones originales de entrenamiento y prueba. Como no hay un conjunto de validación, se separa aleatoriamente un 20 % del entrenamiento.
+Para reducir el tiempo de lectura de las imágenes en Colab, el cuaderno trabaja con una copia reducida a 1920 píxeles de ancho (UC3M_RS.zip); las etiquetas, al estar normalizadas, no cambian.
 
-El conversor también genera el YAML de configuración y `ground_truth.csv`, que guarda el texto de referencia y las coordenadas de las matrículas para la práctica de OCR.
+| Partición | Imágenes | Matrículas |
+|---|---|---|
+| Entrenamiento | 1264 | 1667 |
+| Validación | 316 | 389 |
+| Prueba | 395 | 491 |
 
-Los asteriscos representan caracteres ocultos y deben tratarse como comodines al evaluar el OCR.
+El conjunto procesado (`UC3M_RS.zip`) se descarga automáticamente desde el cuaderno. <<Enlace de descarga>>
 
 ## Ejecución
 
 Los cuadernos están preparados para Google Colab, para poder ejecutarlos se debe:
 
 1. Abrir `VC_P4a.ipynb` o `VC_P4b.ipynb` en Google Colab.
-2. Seleccionar un entorno de ejecución con GPU; la ejecución registrada se hizo con una NVIDIA T4.
-3. Ejecutar las celdas en orden. El cuaderno descarga el dataset y el vídeo desde los enlaces configurados en la sección de rutas, así que solamente se deben descargar los cuadernos
+2. Seleccionar un entorno de ejecución con GPU (la ejecución registrada se hizo con una T4).
+3. Ejecutar las celdas en orden. Los cuadernos descargan el dataset, el vídeo y los pesos desde los enlaces de la sección de configuración, por lo que solo hay que descargar los cuadernos.
 
-Para repetir la ejecución, los enlaces de descarga del dataset, el vídeo y opcionalmente los pesos deben seguir teniendo acceso compartido.
+El entrenamiento del detector de matrículas (sección 4.1 de VC_P4a.ipynb) es opcional y tarda unos 60 minutos en una T4; si se omite, el cuaderno descarga los pesos ya entrenados (best.pt, 5,5 MB). <<Enlace a los pesos y/o ruta en el repositorio>>
 
 Los parámetros principales del detector de matrículas (Práctica 4a):
 
 * Modelo inicial: `yolo11n.pt`.
 * Resolución de entrenamiento: 1280 píxeles.
-* Épocas: 30, con paciencia de 10.
+* Épocas: 40, con paciencia de 10.
 * Tamaño de lote: 4.
-* Clase detectada: `license_plate`.
-
-En cuanto a la práctica 4b se ha seleccionado con una semilla (42) cien matrículas del conjunto de prueba con un máximo de dos carácteres ocultos en total, posteriormente, se comparan las lecturas de EasyOCR y SmolVLM sobre los mismos recortes:
-
-* Para EasyOCR se prueban la imagen original y variantes ampliadas con CLAHE
-
-* Con SmolVLM se evalúa con una indicaciónn general y otra que describe los formatos de matrícula españoles
+* Optimizador: AdamW con selección automática de Ultralytics (lr inicial 0,002)
+* Clase: `license_plate`.
 
 ## Resultados
 
 ### Práctica 4A: Detección de vehículos y matrículas:
 
-**Entrenamiento y evaluación:** El mejor peso del entrenamiento obtuvo en validación 
-una precisión de **0,984**, un recall de **0,982**, mAP@0.5 de **0,984** y mAP@0.5:0.95 
-de **0,882**. En el conjunto de prueba, con 395 imágenes y 491 matrículas anotadas, 
-obtuvo precisión **0,953**, recall **0,960**, mAP@0.5 **0,987** y mAP@0.5:0.95 **0,
-865**. La inferencia registrada en el conjunto de prueba fue de 58,4 ms por imagen, con 
-entrada de 1280 píxeles y GPU T4.
+Se entrenó YOLO11n durante 40 épocas (59 minutos en una T4, unos 89 s por época). Las pérdidas de entrenamiento y validación descienden juntas y sin divergir: box_loss pasa de 1,11 a 0,47 en entrenamiento y de 1,02 a 0,48 en validación; cls_loss baja de 5,60 (primera época, con la cabeza de clasificación todavía sin ajustar) a 0,30; dfl_loss, de 1,02 a 0,83.
+
+Al final la pérdida de validación es similar a la de entrenamiento, por lo que no se ve sobreajuste.
+
+El mAP@0.5 supera 0,95 en la segunda época y se mantiene entre 0,97 y 0,99 desde la época 10. El mAP@0.5:0.95, que exige cajas más precisas, mejora de forma sostenida: 0,57 en la primera época, 0,79 en la décima, 0,85 en la vigésima y 0,89 en la última. Su media sube de 0,855 (épocas 21-30) a 0,876 (épocas 31-40), lo que coincide con el cierre del aumento mosaic en las últimas diez épocas y con el descenso del learning rate (de 1,9·10⁻³ a 7·10⁻⁵). La mejor época fue la 40 y la parada anticipada no se activó, así que más épocas podrían refinar algo más las cajas.
 
 ![Curvas del entrenamiento del detector de matrículas](Resultados_P4a/curvas_entrenamiento.png)
+
+Estas métricas se miden sobre UC3M-LP (fotografías nocturnas con matrículas grandes), no sobre el vídeo de test, para el que no disponemos de anotaciones.
 
 Ejemplo de detección de matrículas en un fotograma del vídeo:
 
@@ -79,6 +79,41 @@ identificadores corresponden al seguimiento de personas y vehículos; las cajas 
 muestran las matrículas detectadas.
 
 [Descargar el vídeo de demostración P4a](Resultados_P4a/video_demostracion.mp4)
+
+#### Pipeline sobre el vídeo de test
+
+El vídeo (1920×1080, 25 fps, 2832 fotogramas) se procesa en dos pasadas:
+
+1. **Detección y seguimiento.** YOLO11n preentrenado con BoT-SORT sobre personas, bicicletas, coches, motos, autobuses y camiones. Para cada vehículo se busca la matrícula **dentro de su recorte** con el detector entrenado (umbral 0,25 y entrada de 640 px), de esta manera la matrícula ocupa un tamaño parecido al visto en el entrenamiento, y queda asociada al identificador del vehículo.
+2. **Salida.** Cada identificador recibe su clase más frecuente a lo largo del vídeo, y solo se cuentan los identificadores presentes en al menos 25 fotogramas, para no contar detecciones esporádicas. Se escribe el vídeo anotado a resolución original (cajas verdes con identificador y clase, cajas rojas para matrículas, contador en pantalla) y los CSV.
+
+Archivos de salida: <<enlaces o rutas>>
+
+* `salida_p4a.mp4`: vídeo anotado.
+* `resultado_p4a.csv`: una fila por detección (9725 filas) con `fotograma, tipo_objeto, confianza, identificador_tracking, x1, y1, x2, y2, matricula, confianza_matricula, mx1, my1, mx2, my2, texto_matricula`. `matricula` indica si se detectó matrícula; `texto_matricula` queda vacío en 4a y lo rellena la práctica 4b.
+* `resumen_vehiculos_p4a.csv`: una fila por identificador con su clase, primer y último fotograma, número de fotogramas, si es estable y si se detectó matrícula.
+
+#### Conteo y validación manual
+
+Contamos a mano los elementos del vídeo y los comparamos con el sistema:
+
+| Clase | Manual | Sistema: identificadores totales | Sistema: estables (≥25 fotogramas) |
+|---|---|---|---|
+| Personas | 14 | 16 | 13 |
+| Coches | 30 | 40 | 38 |
+| Guaguas | 1 | 1 | 1 |
+| Motos | 3 | 1 | 0 |
+| Bicicletas | 2 | 1 | 0 |
+| Matrículas (sin las 2 mátriculas de moto) | 27 | 31 | 31 |
+
+El sistema detecta matrícula en 31 de los 39 vehículos estables.
+
+#### Limitaciones
+
+* **Coches sobrecontados** (38 frente a 30): el seguimiento pierde y recupera algunos vehículos, sobre todo los aparcados o parcialmente tapados, y les asigna identificadores nuevos. Esto también explica que haya más matrículas contadas (31) que visibles (27).
+* **Motos y bicicletas infravaloradas**: cruzan rápido, aparecen pocos fotogramas y el filtro de 25 fotogramas las descarta. Además, el detector de matrículas no detecta las de las motos (el dataset es de coches y esas matrículas son pequeñas).
+* **Matrículas lejanas**: a partir de cierta distancia la matrícula mide pocas decenas de píxeles y se pierde.
+* **Métricas del detector** medidas en UC3M-LP, no en el vídeo; para el vídeo solo disponemos de la comparación de conteos anterior.
 
 ### Práctica 4b: Reconocimiento de caracteres en matrículas:
 
@@ -103,4 +138,3 @@ El OCR comprueba que las lecturas encajen en el formato de las matrículas y cor
 ## Uso de IA
 
 Para la realización de esta práctica se utilizó la IA de manera didáctica y como forma de comprobar y contrastar resultados, además, todo código proporcionado por la IA fue revisado y comprobado antes de la entrega.
-
