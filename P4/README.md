@@ -154,7 +154,7 @@ La corrección por formato (sustituir confusiones típicas como `O→0`, `I→1`
 
 Con la métrica estricta el acierto de SmolVLM es 1 %, pese a leer bien la mayoría de los caracteres (CER 5,2 %). Muchas referencias contienen `*` (caracteres censurados en el dataset) y la métrica estricta exige que el texto leído tenga **la misma longitud** que la referencia. El OCR lee los caracteres visibles y no inventa uno en cada bloque gris (por ejemplo, referencia `2*33KT*` y lectura `2133KT`), por lo que casi nunca coincide en longitud. Por eso damos también el acierto con alineado y el CER, que miden lo que el OCR realmente acierta.
 
-![Vídeo de demostración P4b](Resultados_P4a/video_demostracion_b.mp4)
+![Vídeo de demostración P4b](Resultados_P4b/video_demostracion_b.mp4)
 
 #### Pipeline sobre el vídeo con OCR
 
