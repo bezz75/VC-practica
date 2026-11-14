@@ -43,7 +43,7 @@ Los cuadernos están preparados para Google Colab, para poder ejecutarlos se deb
 2. Seleccionar un entorno de ejecución con GPU (la ejecución registrada se hizo con una T4).
 3. Ejecutar las celdas en orden. Los cuadernos descargan el dataset, el vídeo y los pesos desde los enlaces de la sección de configuración, por lo que solo hay que descargar los cuadernos.
 
-El entrenamiento del detector de matrículas (sección 4.1 de VC_P4a.ipynb) es opcional y tarda unos 60 minutos en una T4; si se omite, el cuaderno descarga los pesos ya entrenados (best.pt, 5,5 MB). <<Enlace a los pesos y/o ruta en el repositorio>>
+El entrenamiento del detector de matrículas (sección 4.1 de VC_P4a.ipynb) es opcional y tarda unos 60 minutos en una T4; si se omite, el cuaderno descarga los pesos ya entrenados (best.pt, 5,5 MB).
 
 Los parámetros principales del detector de matrículas (Práctica 4a):
 
@@ -74,7 +74,7 @@ La demostración de vídeo procesa un tramo de 30 segundos: las cajas verdes y s
 identificadores corresponden al seguimiento de personas y vehículos; las cajas rojas 
 muestran las matrículas detectadas.
 
-[Descargar el vídeo de demostración P4a](Resultados_P4a/video_demostracion.mp4)
+![Vídeo de demostración P4a](Resultados_P4a/video_demostracion.mp4)
 
 #### Pipeline sobre el vídeo de test
 
@@ -153,6 +153,8 @@ La corrección por formato (sustituir confusiones típicas como `O→0`, `I→1`
 #### Por qué el acierto estricto es tan bajo
 
 Con la métrica estricta el acierto de SmolVLM es 1 %, pese a leer bien la mayoría de los caracteres (CER 5,2 %). Muchas referencias contienen `*` (caracteres censurados en el dataset) y la métrica estricta exige que el texto leído tenga **la misma longitud** que la referencia. El OCR lee los caracteres visibles y no inventa uno en cada bloque gris (por ejemplo, referencia `2*33KT*` y lectura `2133KT`), por lo que casi nunca coincide en longitud. Por eso damos también el acierto con alineado y el CER, que miden lo que el OCR realmente acierta.
+
+![Vídeo de demostración P4b](Resultados_P4a/video_demostracion_b.mp4)
 
 #### Pipeline sobre el vídeo con OCR
 
