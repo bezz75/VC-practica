@@ -16,8 +16,6 @@ YOLO11n ajustado para matrículas, entrenado con UC3M-LP (una sola clase, licens
 
 Práctica 4b. Añade el reconocimiento del texto de las matrículas (OCR). Compara EasyOCR con SmolVLM y los integra en el pipeline, que genera el vídeo y los CSV con el texto leído.
 
-<<Sección 4b: se revisará en el siguiente paso>>
-
 ## Dataset
 
 Se ha usado un dataset externo [UC3M-LP](https://github.com/ramajoballester/UC3M-LP) que contiene fotografías nocturnas de 5184×3888 píxeles con varios coches por imagen (hasta dos matrículas por imagen), con una anotación .json por imagen que incluye el polígono de cada matrícula y su texto. Este dataset se ha preparado y tratado para su utilización en la práctica creando un script que hizo lo siguiente:
@@ -35,7 +33,7 @@ Para reducir el tiempo de lectura de las imágenes en Colab, el cuaderno trabaja
 | Validación | 316 | 389 |
 | Prueba | 395 | 491 |
 
-El conjunto procesado (`UC3M_RS.zip`) se descarga automáticamente desde el cuaderno. <<Enlace de descarga>>
+El conjunto procesado (`UC3M_RS.zip`) se descarga automáticamente desde el cuaderno. [Descarga aquí](https://drive.google.com/file/d/1renkBiwUoSf1MaaG9ujI8COAHjhKdt5A/view?usp=drive_link)
 
 ## Ejecución
 
@@ -55,8 +53,6 @@ Los parámetros principales del detector de matrículas (Práctica 4a):
 * Tamaño de lote: 4.
 * Optimizador: AdamW con selección automática de Ultralytics (lr inicial 0,002)
 * Clase: `license_plate`.
-
-## Resultados
 
 ### Práctica 4A: Detección de vehículos y matrículas:
 
@@ -87,7 +83,7 @@ El vídeo (1920×1080, 25 fps, 2832 fotogramas) se procesa en dos pasadas:
 1. **Detección y seguimiento.** YOLO11n preentrenado con BoT-SORT sobre personas, bicicletas, coches, motos, autobuses y camiones. Para cada vehículo se busca la matrícula **dentro de su recorte** con el detector entrenado (umbral 0,25 y entrada de 640 px), de esta manera la matrícula ocupa un tamaño parecido al visto en el entrenamiento, y queda asociada al identificador del vehículo.
 2. **Salida.** Cada identificador recibe su clase más frecuente a lo largo del vídeo, y solo se cuentan los identificadores presentes en al menos 25 fotogramas, para no contar detecciones esporádicas. Se escribe el vídeo anotado a resolución original (cajas verdes con identificador y clase, cajas rojas para matrículas, contador en pantalla) y los CSV.
 
-Archivos de salida: <<enlaces o rutas>>
+Archivos de salida:
 
 * `salida_p4a.mp4`: vídeo anotado.
 * `resultado_p4a.csv`: una fila por detección (9725 filas) con `fotograma, tipo_objeto, confianza, identificador_tracking, x1, y1, x2, y2, matricula, confianza_matricula, mx1, my1, mx2, my2, texto_matricula`. `matricula` indica si se detectó matrícula; `texto_matricula` queda vacío en 4a y lo rellena la práctica 4b.
@@ -123,7 +119,7 @@ Se compara un OCR clásico (**EasyOCR**) con un modelo visión-lenguaje (**SmolV
 
 * **Datos:** 100 recortes de matrículas aleatorios (semilla 42) de la partición de **test** de UC3M-LP, recortados con las cajas del `ground_truth.csv`. Solo se usan matrículas con 2 o menos caracteres censurados. Los mismos 100 recortes se usan en todos los métodos.
 * **Preprocesado:** se probó el recorte original, ampliado a ~100 px de alto y ampliado + CLAHE. Para la comparación final EasyOCR y SmolVLM reciben la misma entrada (ampliar + CLAHE).
-* **Tiempos:** una lectura de calentamiento descartada y 3 pasadas sobre los 100 recortes; se da la mediana de las medias de cada pasada. Los tres métodos se miden con la misma función, en la misma sesión.
+* **Tiempos:** una lectura de calentamiento descartada y 3 pasadas sobre los 100 recortes con la misma función para los tres métodos; se da la mediana de las tres pasadas. (La primera medición, de una sola pasada, es más ruidosa en Colab: EasyOCR con ampliar + CLAHE salió a 61 ms de media frente a 26 ms de mediana en las 3 pasadas.)
 * **Máquina:** GPU NVIDIA Tesla T4 (Google Colab), PyTorch 2.14.1+cu130. <<PENDIENTE: CPU, RAM y versión de Python que imprime la primera celda>>
 * **Métricas** (los `*` del texto de referencia son caracteres censurados en la imagen):
   * *Acierto estricto* (la definición del enunciado): misma longitud y todos los caracteres iguales; el `*` casa con cualquier carácter.
@@ -132,14 +128,14 @@ Se compara un OCR clásico (**EasyOCR**) con un modelo visión-lenguaje (**SmolV
 
 #### Resultados (100 matrículas de test)
 
-| Método | Acierto estricto | Acierto con alineado | CER | Tiempo por matrícula |
+| Método | Acierto estricto | Acierto con alineado | CER | Tiempo por matrícula (mediana de 3 pasadas) |
 |---|---|---|---|---|
-| EasyOCR, recorte original | 7,0 % | 48,0 % | 31,6 % | <<PENDIENTE: medir con `pasadas()`>> |
-| EasyOCR, ampliar | 6,0 % | 46,0 % | 26,2 % | <<PENDIENTE>> |
-| **EasyOCR, ampliar + CLAHE** | 6,0 % | 51,0 % | 22,4 % | 25 ms |
-| **SmolVLM, ampliar + CLAHE** | 1,0 % | **84,0 %** | **5,2 %** | 1264 ms |
+| EasyOCR, recorte original | 7,0 % | 48,0 % | 31,6 % | 20 ms |
+| EasyOCR, ampliar | 6,0 % | 46,0 % | 26,2 % | no medido en 3 pasadas |
+| **EasyOCR, ampliar + CLAHE** | 6,0 % | 51,0 % | 22,4 % | 26 ms |
+| **SmolVLM, ampliar + CLAHE** | 1,0 % | **84,0 %** | **5,2 %** | 1271 ms |
 
-Con la medición única de las tres variantes, los tiempos de EasyOCR (original y ampliar) quedan <<PENDIENTE>>. En una ejecución anterior (medición distinta) fueron ~21 ms y ~29 ms. SmolVLM es **~51 veces más lento** que EasyOCR con la misma entrada (1264 ms frente a 25 ms). <<PENDIENTE: confirmar el factor tras ejecutar la celda 2.7>>
+SmolVLM es **50 veces más lento** que EasyOCR con la misma entrada (1271 ms frente a 26 ms). En otras sesiones de Colab el factor fue 51 y 55 veces, así que el orden de magnitud es de unas 50 veces aunque los tiempos varíen ligeramente entre sesiones.
 
 ![Comparativa de acierto, error de caracteres y tiempo](Resultados_P4b/comparativa_ocr.png)
 
@@ -152,46 +148,48 @@ Con la medición única de las tres variantes, los tiempos de EasyOCR (original 
 | SmolVLM con prompt que describe el formato | 1,0 % | 71,0 % | 12,0 % |
 | SmolVLM con prompt de formato + corrección | 1,0 % | 70,0 % | 12,4 % |
 
-La corrección por formato (sustituir confusiones típicas como `O→0`, `I→1`) empeora ligeramente ambos resultados, y el prompt que describe el formato empeora claramente a SmolVLM. Por eso el pipeline usa el prompt base. La corrección por formato **sí** se mantiene en el pipeline para otro fin: descartar lecturas que no pueden ser una matrícula (por ejemplo, textos de más de 8 caracteres), en lugar de guardarlas en el CSV.
+La corrección por formato (sustituir confusiones típicas como `O→0`, `I→1`) empeora ligeramente ambos resultados, y el prompt que describe el formato empeora claramente a SmolVLM. Por eso el pipeline usa el prompt base. La comprobación de formato **sí** se mantiene en el pipeline para descartar lecturas que no pueden ser una matrícula.
 
 #### Por qué el acierto estricto es tan bajo
 
-Con la métrica estricta el acierto de SmolVLM es 1 %, pese a leer bien la mayoría de los caracteres (CER 5,2 %). La causa es que muchas referencias contienen `*` (caracteres censurados en el dataset), y la métrica estricta exige que el texto leído tenga **la misma longitud** que la referencia. El OCR lee los caracteres visibles y no inventa uno en cada bloque gris, por lo que casi nunca coincide en longitud. Por eso damos también el acierto con alineado y el CER, que miden lo que el OCR realmente acierta.
+Con la métrica estricta el acierto de SmolVLM es 1 %, pese a leer bien la mayoría de los caracteres (CER 5,2 %). Muchas referencias contienen `*` (caracteres censurados en el dataset) y la métrica estricta exige que el texto leído tenga **la misma longitud** que la referencia. El OCR lee los caracteres visibles y no inventa uno en cada bloque gris (por ejemplo, referencia `2*33KT*` y lectura `2133KT`), por lo que casi nunca coincide en longitud. Por eso damos también el acierto con alineado y el CER, que miden lo que el OCR realmente acierta.
 
 #### Pipeline sobre el vídeo con OCR
 
-El pipeline es el de 4a (misma detección de matrículas dentro del recorte del vehículo, mismo seguimiento, clase mayoritaria por ID y 25 fotogramas mínimos) con estas adiciones:
+El pipeline es el de 4a (mismos pesos del detector, mismo seguimiento YOLO11n + BoT-SORT, misma búsqueda de la matrícula dentro del recorte del vehículo, clase mayoritaria por identificador y mínimo de 25 fotogramas para contar), por lo que genera las mismas 9725 detecciones y los mismos 59 identificadores. Se añade el OCR:
 
-* El OCR (SmolVLM, ampliar + CLAHE) solo se aplica si la matrícula mide al menos 50 px de ancho y su proporción ancho/alto está entre 1,5 y 7. Se recortan con un 8 % de margen.
-* Se hacen hasta 3 lecturas válidas por vehículo (máximo 8 intentos, separadas 8 fotogramas como mínimo).
-* Una lectura solo se acepta si encaja en el formato de matrícula española (nueva: 4 dígitos + 3 consonantes; antigua: 1-2 letras + 4 dígitos + 1-2 letras), tras corregir como mucho 2 confusiones típicas.
-* El texto final de cada vehículo se obtiene por votación ponderada con la confianza de la detección. El vídeo y el CSV muestran el texto votado con las lecturas obtenidas hasta ese fotograma.
+* **Cuándo se lee:** solo si la matrícula mide al menos 50 px de ancho y su proporción ancho/alto está entre 1,5 y 7; se recorta con un 8 % de margen. Hasta 3 lecturas válidas por vehículo (máximo 8 intentos, separados 8 fotogramas como mínimo).
+* **OCR:** SmolVLM con el prompt base sobre el recorte ampliado + CLAHE.
+* **Validación:** una lectura solo se acepta si encaja en el formato de matrícula española (nueva: 4 dígitos + 3 consonantes; antigua: 1-2 letras + 4 dígitos + 1-2 letras), tras corregir como mucho 2 confusiones típicas. Las demás se descartan.
+* **Texto final:** votación ponderada con la confianza de la detección entre las lecturas válidas del vehículo (carácter a carácter si hay 3 o más). El vídeo y el CSV muestran el texto votado con las lecturas obtenidas hasta ese fotograma.
 
-Archivos de salida: <<enlaces o rutas>>
+Archivos de salida:
 
 * `salida_p4.mp4`: vídeo anotado con el texto leído sobre cada matrícula.
 * `resultado.csv`: una fila por detección con los campos de 4a y `texto_matricula` relleno.
 * `resumen_vehiculos.csv`: una fila por identificador, con número de lecturas válidas y texto final.
 
-Resultados sobre el vídeo (<<PENDIENTE: ejecutar el cuaderno completo y completar>>):
-[Descargar el vídeo de demostración P4b](Resultados_P4b/video_demostracion_b.mp4)
+**Resultados sobre el vídeo**
 
-| Concepto | Valor |
+| Etapa | Vehículos |
 |---|---|
-| Vehículos estables | <<PENDIENTE>> |
-| con matrícula detectada | <<PENDIENTE>> |
-| con texto leído | <<PENDIENTE>> |
-| Tiempo medio de OCR por lectura en el pipeline | <<PENDIENTE>> ms |
+| Estables | 39 |
+| con matrícula detectada | 31 |
+| con texto leído (formato válido) | 22 |
+| sin lectura válida | 9 |
 
-<<PENDIENTE: leer a mano 10-15 matrículas del vídeo y dar una precisión aproximada. El vídeo no tiene anotaciones de matrícula, así que sin esto no hay forma de medir el acierto sobre el vídeo.>>
+Se hicieron 82 lecturas de OCR a 1259 ms de media, 51 de ellas válidas. De los 22 textos, 18 tienen formato nuevo y 4 antiguo.
+
+**Fiabilidad de las lecturas.** Que una lectura tenga formato válido no significa que sea correcta. Cuatro de los 22 textos salen de una sola lectura válida y alguno es sospechoso (`S5555S`: el VLM tiende a repetir dígitos cuando la matrícula está desenfocada; en las lecturas descartadas aparecen `5555` o `7777`). Además, el texto final de algunos vehículos cambió entre ejecuciones con distintos métodos de detección de la matrícula (por ejemplo, el vehículo 53 fue `8098JXM` y `8098JXV`, y el 36 fue `3559LYR` y `5059LYY`), lo que indica que las matrículas lejanas están en el límite de lo legible. 
 
 #### Conclusiones
 
 * **Precisión:** SmolVLM es claramente más preciso que EasyOCR sobre matrículas nocturnas: 84 % frente a 51 % de acierto con alineado, y 5,2 % frente a 22,4 % de error de caracteres. Lee mucho mejor las matrículas desenfocadas y con poco contraste.
-* **Velocidad:** EasyOCR es unas 50 veces más rápido. Para procesar un vídeo largo es el límite práctico del VLM, que en nuestro pipeline solo se ejecuta unas pocas veces por vehículo, no en cada fotograma.
+* **Velocidad:** EasyOCR es unas 50 veces más rápido (26 ms frente a 1271 ms). Con el VLM procesar todos los fotogramas no es viable; en nuestro pipeline solo se ejecuta unas pocas veces por vehículo.
 * **Preprocesado:** ampliar y aplicar CLAHE ayuda a EasyOCR (CER de 31,6 % a 22,4 %), pero no lo acerca al VLM.
-* **Formato:** inyectar conocimiento del formato (prompt o corrección) no mejoró la lectura en nuestras pruebas. Su utilidad real es filtrar lecturas imposibles.
-* **Limitaciones:** la comparativa se hizo con matrículas de UC3M-LP (nocturnas, grandes), no con las del vídeo de test; en el vídeo las matrículas lejanas son pequeñas y están desenfocadas, así que el acierto allí será menor. La votación carácter a carácter puede producir una lectura que ninguna lectura individual contenía.
+* **Formato:** inyectar conocimiento del formato (prompt o corrección) no mejoró la lectura en las pruebas con el dataset. Su utilidad real es filtrar lecturas imposibles.
+* **Del dataset al vídeo:** en el dataset los recortes de matrícula tienen una mediana de 175 px de ancho, mientras que en el vídeo la mediana de las matrículas detectadas en cada fotograma es de **49 px** (percentiles 10 y 90: 29 y 99 px) y solo el 48 % llega a los 50 px que exige el pipeline. Por vehículo, los 22 con texto alcanzaron una anchura máxima mediana de 139 px, mientras que ninguno de los 9 sin lectura válida superó los 67 px. Muchas de sus lecturas descartadas son solo dígitos (`3326`, `5555`) porque las letras no se distinguen. Por eso se lee el texto de 22 de los 31 vehículos con matrícula detectada, y el acierto en el vídeo será menor que el medido en UC3M-LP.
+* **Limitaciones:** la votación carácter a carácter puede producir una lectura que ninguna lectura individual contenía (en una ejecución anterior el vehículo 35 tuvo `3685KWM`, `3685KMW` y `J3685KW`, y el texto final fue `3685KKW`, que ninguna lectura contenía). Con solo 2 lecturas distintas la votación depende de las confianzas de detección y puede elegir la errónea.
 
 ## Fuentes consultadas
 
