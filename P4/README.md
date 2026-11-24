@@ -11,14 +11,14 @@ Este repositorio contiene los cuardernos `VC_P4a.ipynb` y `VC_P4b.ipynb`, los cu
 
 Práctica 4a. Prototipo que procesa el vídeo de test para detectar y seguir personas y vehículos, detectar las matrículas de los vehículos, contar el total de cada clase y volcar a disco un vídeo anotado y un CSV. Combina dos detectores:
 
-YOLO11n preentrenado (COCO) con el seguimiento BoT-SORT de Ultralytics, para personas, bicicletas, coches, motos, autobuses y camiones.
+YOLO11n preentrenado (COCO) con el seguimiento TrackTrack de Ultralytics, para personas, bicicletas, coches, motos, autobuses y camiones.
 YOLO11n ajustado para matrículas, entrenado con UC3M-LP (una sola clase, license_plate).
 
 Práctica 4b. Añade el reconocimiento del texto de las matrículas (OCR). Compara EasyOCR con SmolVLM y los integra en el pipeline, que genera el vídeo y los CSV con el texto leído.
 
 ## Dataset
 
-Se ha usado un dataset externo [UC3M-LP](https://github.com/ramajoballester/UC3M-LP) que contiene fotografías nocturnas de 5184×3888 píxeles con varios coches por imagen (hasta dos matrículas por imagen), con una anotación .json por imagen que incluye el polígono de cada matrícula y su texto. Este dataset se ha preparado y tratado para su utilización en la práctica creando un script que hizo lo siguiente:
+Se ha usado un dataset externo [UC3M-LP](https://github.com/ramajoballester/UC3M-LP) que contiene fotografías de 5184×3888 píxeles con varios coches por imagen (hasta dos matrículas por imagen), con una anotación .json por imagen que incluye el polígono de cada matrícula y su texto. Este dataset se ha preparado y tratado para su utilización en la práctica creando un script que hizo lo siguiente:
 
 - Empareja cada imagen con su JSON por nombre de archivo.
 - Convierte el polígono de cada matrícula en la caja delimitadora YOLO de la clase license_plate, normalizada con el tamaño de imagen indicado en el JSON.
@@ -64,7 +64,7 @@ El mAP@0.5 supera 0,95 en la segunda época y se mantiene entre 0,97 y 0,99 desd
 
 ![Curvas del entrenamiento del detector de matrículas](Resultados_P4a/curvas_entrenamiento.png)
 
-Estas métricas se miden sobre UC3M-LP (fotografías nocturnas con matrículas grandes), no sobre el vídeo de test, para el que no disponemos de anotaciones.
+Estas métricas se miden sobre UC3M-LP (fotografías con matrículas grandes), no sobre el vídeo de test, para el que no disponemos de anotaciones.
 
 Ejemplo de detección de matrículas en un fotograma del vídeo:
 
@@ -158,7 +158,7 @@ Con la métrica estricta el acierto de SmolVLM es 1 %, pese a leer bien la mayor
 
 #### Pipeline sobre el vídeo con OCR
 
-El pipeline es el de 4a (mismos pesos del detector, mismo seguimiento YOLO11n + BoT-SORT, misma búsqueda de la matrícula dentro del recorte del vehículo, clase mayoritaria por identificador y mínimo de 25 fotogramas para contar), por lo que genera las mismas 9725 detecciones y los mismos 59 identificadores. Se añade el OCR:
+El pipeline es el de 4a (mismos pesos del detector, mismo seguimiento YOLO11n + TrackTrack, misma búsqueda de la matrícula dentro del recorte del vehículo, clase mayoritaria por identificador y mínimo de 25 fotogramas para contar), por lo que genera las mismas 9725 detecciones y los mismos 59 identificadores. Se añade el OCR:
 
 * **Cuándo se lee:** solo si la matrícula mide al menos 50 px de ancho y su proporción ancho/alto está entre 1,5 y 7; se recorta con un 8 % de margen. Hasta 3 lecturas válidas por vehículo (máximo 8 intentos, separados 8 fotogramas como mínimo).
 * **OCR:** SmolVLM con el prompt base sobre el recorte ampliado + CLAHE.
@@ -186,7 +186,7 @@ Se hicieron 82 lecturas de OCR a 1259 ms de media, 51 de ellas válidas. De los 
 
 #### Conclusiones
 
-* **Precisión:** SmolVLM es claramente más preciso que EasyOCR sobre matrículas nocturnas: 84 % frente a 51 % de acierto con alineado, y 5,2 % frente a 22,4 % de error de caracteres. Lee mucho mejor las matrículas desenfocadas y con poco contraste.
+* **Precisión:** SmolVLM es claramente más preciso que EasyOCR sobre matrículas: 84 % frente a 51 % de acierto con alineado, y 5,2 % frente a 22,4 % de error de caracteres. Lee mucho mejor las matrículas desenfocadas y con poco contraste.
 * **Velocidad:** EasyOCR es unas 50 veces más rápido (26 ms frente a 1271 ms). Con el VLM procesar todos los fotogramas no es viable; en nuestro pipeline solo se ejecuta unas pocas veces por vehículo.
 * **Preprocesado:** ampliar y aplicar CLAHE ayuda a EasyOCR (CER de 31,6 % a 22,4 %), pero no lo acerca al VLM.
 * **Formato:** inyectar conocimiento del formato (prompt o corrección) no mejoró la lectura en las pruebas con el dataset. Su utilidad real es filtrar lecturas imposibles.
