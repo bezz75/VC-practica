@@ -1,0 +1,12 @@
+# Datos y cachés (se regeneran o se descargan de Kaggle)
+data/
+
+# Configuración personal del editor
+.vscode/
+
+# Cachés de Python
+__pycache__/
+*.pyc
+
+# Checkpoints de Jupyter
+.ipynb_checkpoints/
