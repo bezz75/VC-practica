@@ -124,8 +124,6 @@ La partida dura 60 segundos y empieza con tres vidas. Cortar una fruta suma 10 p
 
 ### Filtro 2 — Fruit Ninja
 
-> **Pendiente:** valorar la precisión y comodidad del control con nariz y dedo, la respuesta del juego y las mejoras prioritarias.
-
 El filtro cumple su función y es entretenido, una posible ampliación del filtro podría ser añadir otros modos o frutas que te otorguen habilidades para las partidas
 
 ## Referencias
