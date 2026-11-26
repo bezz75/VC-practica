@@ -92,8 +92,6 @@ La partida dura 60 segundos y empieza con tres vidas. Cortar una fruta suma 10 p
 - Tecla Q o Esc: Salir
 - Tecla R: Reiniciar cuando acabe la partida
 
-### Filtro 1 — Emociones y reacción
-
 ## Resultados y evaluación
 
 ### Filtro 1 — Emociones
