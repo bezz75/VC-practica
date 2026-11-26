@@ -101,9 +101,11 @@ La partida dura 60 segundos y empieza con tres vidas. Cortar una fruta suma 10 p
 ### Filtro 2 — Fruit Ninja
 
 **Control con el dedo**
+
 ![Control con el dedo](FruitNinja/Resultados/FN_Dedo.gif)
 
 **Control con el nariz**
+
 ![Control con el nariz](FruitNinja/Resultados/FN_Nariz.gif)
 
 ## Robustez y limitaciones
