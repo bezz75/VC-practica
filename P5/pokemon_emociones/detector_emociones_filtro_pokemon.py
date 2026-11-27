@@ -18,9 +18,7 @@ import cv2
 import numpy as np
 
 # Funciones compartidas con el Fruit Ninja (P5/comun)
-RAIZ_P5 = Path.cwd().resolve()
-while not (RAIZ_P5 / "comun").exists() and RAIZ_P5 != RAIZ_P5.parent:
-    RAIZ_P5 = RAIZ_P5.parent
+RAIZ_P5 = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ_P5 / "comun"))
 
 from filtro_utils import (crear_detector_cara, Reloj, imagen_mediapipe, a_pixeles,

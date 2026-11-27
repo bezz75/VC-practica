@@ -202,7 +202,7 @@ En ambos casos el conjunto de test solo se usó para la evaluación final. El pr
 
 ### Filtro 1 — Emociones
 
-<!-- Añadir aquí el GIF del filtro: ![Filtro de emociones](pokemon_emociones/resultados/demo.gif) -->
+![Filtro de emociones](pokemon_emociones/resultados/poke.gif)
 
 **Experimento 1: características** (F1 macro, validación cruzada de 5 particiones sobre train)
 
